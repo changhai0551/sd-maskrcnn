@@ -83,14 +83,14 @@ class ImageDataset(utils.Dataset):
         else:
             image = skimage.io.imread(self.image_info[image_id]['path'])
         
+        if image.shape[-1] == 4 and image.ndim == 3:
+            image = image[..., :3]
         if self._channels == 1 and image.ndim == 2:
             image = image[:,:,np.newaxis]
         elif self._channels == 1 and image.ndim == 3:
-            image = image[:,:,[0]]
-        elif self._channels == 3 and image.ndim != 1:
-            image = skimage.color.gray2rgb(image) 
-        elif self._channels == 3 and image.shape[-1] == 4: # If has an alpha channel, remove it for consistency
-            image = skimage.color.gray2rgb(image[..., :3])
+            image = image[:,:,0]
+        elif self._channels == 3 and image.shape[-1] == 1:
+            image = skimage.color.gray2rgb(image)            
             
         return image
 

@@ -29,6 +29,9 @@ def train(config):
     train_config.STEPS_PER_EPOCH = dataset_train.indices.size/(train_config.IMAGES_PER_GPU*train_config.GPU_COUNT)
     train_config.display()
 
+    # Create directory if it doesn't currently exist
+    utils.mkdir_if_missing(config['model']['path'])
+
     # Create the model.
     model = modellib.MaskRCNN(mode='training', config=train_config,
                               model_dir=config['model']['path'])
