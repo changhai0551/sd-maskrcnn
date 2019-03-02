@@ -20,7 +20,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 from autolab_core import YamlConfig
-from perception import DepthImage
+from perception import DepthImage, ColorImage
 
 from mrcnn import visualize, utils as utilslib
 
@@ -54,13 +54,13 @@ def benchmark(config):
 
     # Create predictions and record where everything gets stored.
     pred_mask_dir, pred_info_dir, gt_mask_dir = \
-        detect(detector_type, config['detector'][detector_type], output_dir, config['test'])
+        detect(detector_type, config['detector'][detector_type], output_dir, config['dataset'])
 
     ap, ar = coco_benchmark(pred_mask_dir, pred_info_dir, gt_mask_dir)
     if config['vis']['predictions']:
-        visualize_predictions(output_dir, config['test'], pred_mask_dir, pred_info_dir, show_bbox=config['vis']['show_bbox_pred'], show_class=config['vis']['show_class_pred'])
+        visualize_predictions(output_dir, config['dataset'], pred_mask_dir, pred_info_dir, show_bbox=config['vis']['show_bbox_pred'], show_class=config['vis']['show_class_pred'])
     if config['vis']['s_bench']:
-        s_benchmark(output_dir, config['test'], pred_mask_dir, pred_info_dir, gt_mask_dir)
+        s_benchmark(output_dir, config['dataset'], pred_mask_dir, pred_info_dir, gt_mask_dir)
 
     print("Saved benchmarking output to {}.\n".format(output_dir))
     return ap, ar
@@ -80,11 +80,12 @@ def visualize_predictions(run_dir, test_config, pred_mask_dir, pred_info_dir, sh
     ##################################################################
     print('VISUALIZING PREDICTIONS')
     for image_id in tqdm(image_ids):
-        base_name = 'image_{:06d}'.format(indices_arr[image_id])
-        depth_image_fn = base_name + '.npy'
+        depth_image_fn = 'image_{:06d}.npy'.format(indices_arr[image_id])
+        # depth_image_fn = 'image_{:06d}.png'.format(indices_arr[image_id])        
 
         # Load image and ground truth data and resize for net
         depth_data = np.load(os.path.join(depth_dir, depth_image_fn))
+        # image = ColorImage.open(os.path.join(depth_dir, '..', 'depth_ims', depth_image_fn)).data
         image = DepthImage(depth_data).to_color().data
 
         # load mask and info
